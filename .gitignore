@@ -61,6 +61,19 @@ site/
 
 # Python
 *.venv
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*.tox
+pytest.log
+pytest.xml
+*.coverage
+coverage.xml
+.mypy_cache/
+.pytest_cache/
 
 # SSH keys
 id_ed25519
