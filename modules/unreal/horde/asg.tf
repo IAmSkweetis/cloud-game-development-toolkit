@@ -97,12 +97,16 @@ resource "aws_iam_role" "unreal_horde_agent_default_role" {
   name               = "unreal-horde-agent-default-instance-role"
   assume_role_policy = data.aws_iam_policy_document.ec2_trust_relationship[0].json
 
-  managed_policy_arns = [
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "unreal_horde_agent_policy_attachments" {
+  count      = length(var.agents) > 0 ? 1 : 0
+  role_name  = aws_iam_role.unreal_horde_agent_default_role[0].name
+  policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
     aws_iam_policy.horde_agents_s3_policy[0].arn
   ]
-
-  tags = local.tags
 }
 
 # Instance Profile
@@ -192,7 +196,7 @@ resource "aws_ssm_association" "configure_unreal_horde_agent" {
   parameters = {
     SourceInfo     = "{\"path\":\"https://${aws_s3_bucket.ansible_playbooks[0].bucket_domain_name}/agent/\"}"
     PlaybookFile   = "horde-agent.ansible.yml"
-    ExtraVariables = "horde_server_url=${var.fully_qualified_domain_name}"
+    ExtraVariables = "horde_server_url=${var.fully_qualified_domain_name} dotnet_runtime_version=${var.agent_dotnet_runtime_version}"
   }
 
   output_location {

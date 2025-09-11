@@ -63,7 +63,10 @@ No modules.
 | [aws_iam_role.unreal_horde_agent_default_role](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role) | resource |
 | [aws_iam_role.unreal_horde_default_role](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role) | resource |
 | [aws_iam_role.unreal_horde_task_execution_role](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.unreal_horde_default_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.unreal_horde_elasticache_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.unreal_horde_secrets_manager_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.unreal_horde_task_execution_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_launch_template.unreal_horde_agent_template](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/launch_template) | resource |
 | [aws_lb.unreal_horde_external_alb](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/lb) | resource |
 | [aws_lb.unreal_horde_internal_alb](https://registry.terraform.io/providers/hashicorp/aws/6.6.0/docs/resources/lb) | resource |
@@ -130,6 +133,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_claim_type"></a> [admin\_claim\_type](#input\_admin\_claim\_type) | The claim type for administrators. | `string` | `null` | no |
 | <a name="input_admin_claim_value"></a> [admin\_claim\_value](#input\_admin\_claim\_value) | The claim value for administrators. | `string` | `null` | no |
+| <a name="input_agent_dotnet_runtime_version"></a> [agent\_dotnet\_runtime\_version](#input\_agent\_dotnet\_runtime\_version) | The dotnet-runtime-{} package to install (see your engine version's release notes for supported version) | `string` | `"6.0"` | no |
 | <a name="input_agents"></a> [agents](#input\_agents) | Configures autoscaling groups to be used as build agents by Unreal Engine Horde. | <pre>map(object({<br/>    ami           = string<br/>    instance_type = string<br/>    block_device_mappings = list(<br/>      object({<br/>        device_name = string<br/>        ebs = object({<br/>          volume_size = number<br/>        })<br/>      })<br/>    )<br/>    min_size = optional(number, 0)<br/>    max_size = optional(number, 1)<br/>  }))</pre> | `{}` | no |
 | <a name="input_auth_method"></a> [auth\_method](#input\_auth\_method) | The authentication method for the Horde server. | `string` | `null` | no |
 | <a name="input_certificate_arn"></a> [certificate\_arn](#input\_certificate\_arn) | The TLS certificate ARN for the Unreal Horde load balancer. | `string` | n/a | yes |
@@ -180,6 +184,9 @@ No modules.
 | <a name="input_oidc_client_id"></a> [oidc\_client\_id](#input\_oidc\_client\_id) | The client ID used for authenticating with the OIDC provider. | `string` | `null` | no |
 | <a name="input_oidc_client_secret"></a> [oidc\_client\_secret](#input\_oidc\_client\_secret) | The client secret used for authenticating with the OIDC provider. | `string` | `null` | no |
 | <a name="input_oidc_signin_redirect"></a> [oidc\_signin\_redirect](#input\_oidc\_signin\_redirect) | The sign-in redirect URL for the OIDC provider. | `string` | `null` | no |
+| <a name="input_p4_port"></a> [p4\_port](#input\_p4\_port) | The Perforce server to connect to. | `string` | `null` | no |
+| <a name="input_p4_super_user_password_secret_arn"></a> [p4\_super\_user\_password\_secret\_arn](#input\_p4\_super\_user\_password\_secret\_arn) | Optionally provide the ARN of an AWS Secret for the p4d super user password. | `string` | `null` | no |
+| <a name="input_p4_super_user_username_secret_arn"></a> [p4\_super\_user\_username\_secret\_arn](#input\_p4\_super\_user\_username\_secret\_arn) | Optionally provide the ARN of an AWS Secret for the p4d super user username. | `string` | `null` | no |
 | <a name="input_project_prefix"></a> [project\_prefix](#input\_project\_prefix) | The project prefix for this workload. This is appeneded to the beginning of most resource names. | `string` | `"cgd"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources. | `map(any)` | <pre>{<br/>  "iac-management": "CGD-Toolkit",<br/>  "iac-module": "unreal-horde",<br/>  "iac-provider": "Terraform"<br/>}</pre> | no |
 | <a name="input_unreal_horde_alb_access_logs_bucket"></a> [unreal\_horde\_alb\_access\_logs\_bucket](#input\_unreal\_horde\_alb\_access\_logs\_bucket) | ID of the S3 bucket for Unreal Horde ALB access log storage. If access logging is enabled and this is null the module creates a bucket. | `string` | `null` | no |

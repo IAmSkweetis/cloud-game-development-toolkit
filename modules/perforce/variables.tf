@@ -360,6 +360,11 @@ variable "p4_auth_config" {
     custom_role               = optional(string, null)
     admin_username_secret_arn = optional(string, null)
     admin_password_secret_arn = optional(string, null)
+
+    # SCIM
+    p4d_super_user_arn          = optional(string, null)
+    p4d_super_user_password_arn = optional(string, null)
+    scim_bearer_token_arn       = optional(string, null)
   })
 
   default = null
@@ -411,6 +416,13 @@ variable "p4_auth_config" {
     admin_password_secret_arn : "Optionally provide the ARN of an AWS Secret for the P4Auth Administrator password."
 
 
+    # - SCIM -
+    p4d_super_user_arn : "If you would like to use SCIM to provision users and groups, you need to set this variable to the ARN of an AWS Secrets Manager secret containing the super user username for p4d."
+
+    p4d_super_user_password_arn : "If you would like to use SCIM to provision users and groups, you need to set this variable to the ARN of an AWS Secrets Manager secret containing the super user password for p4d."
+
+    scim_bearer_token_arn : "If you would like to use SCIM to provision users and groups, you need to set this variable to the ARN of an AWS Secrets Manager secret containing the bearer token."
+
 
   EOT
 
@@ -434,6 +446,7 @@ variable "p4_code_review_config" {
     container_cpu    = optional(number, 1024)
     container_memory = optional(number, 4096)
     p4d_port         = optional(string, null)
+    p4charset        = optional(string, null)
     existing_redis_connection = optional(object({
       host = string
       port = number
@@ -487,6 +500,8 @@ variable "p4_code_review_config" {
     container_memory : "The number of CPU units to reserve for the P4 Code Review service container. Default is '4096'."
 
     pd4_port : "The full URL you will use to access the P4 Depot in clients such P4V and P4Admin. Note, this typically starts with 'ssl:' and ends with the default port of ':1666'."
+
+    p4charset : "The P4CHARSET environment variable to set in the P4 Code Review container."
 
     existing_redis_connection : "The existing Redis connection for the P4 Code Review service."
 

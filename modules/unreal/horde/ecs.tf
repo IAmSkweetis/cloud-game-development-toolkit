@@ -35,7 +35,7 @@ resource "aws_ecs_task_definition" "unreal_horde_task_definition" {
     name = "unreal-horde-config"
   }
 
-  container_definitions = jsonencode([
+  container_definitions = jsonencode(concat([
     {
       name  = var.container_name
       image = var.image
@@ -81,12 +81,17 @@ resource "aws_ecs_task_definition" "unreal_horde_task_definition" {
           name  = "Horde__jwtIssuer",
           value = "https://${var.fully_qualified_domain_name}"
         },
+        {
+          name  = "P4TRUST"
+          value = "/app/config/.p4trust"
+        },
       ], local.horde_service_env)
+      secrets = local.horde_service_secrets
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.unreal_horde_log_group.name
-          awslogs-region        = data.aws_region.current.name
+          awslogs-region        = data.aws_region.current.id
           awslogs-stream-prefix = "[APP]"
         }
       },
@@ -96,16 +101,20 @@ resource "aws_ecs_task_definition" "unreal_horde_task_definition" {
           containerPath = "/app/config"
         }
       ],
-      dependsOn = [
-        {
+      dependsOn = concat(
+        [{
           containerName = "unreal-horde-docdb-cert",
-          condition     = "COMPLETE"
-        }
-      ]
+          condition     = "SUCCESS"
+        }],
+        local.need_p4_trust ? [{
+          containerName = "unreal-horde-p4-trust",
+          condition     = "SUCCESS"
+        }] : []
+      )
     },
     {
       name                     = "unreal-horde-docdb-cert",
-      image                    = "bash",
+      image                    = "public.ecr.aws/docker/library/bash:5.3",
       essential                = false
       command                  = ["wget", "https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem", "-P", "/app/config/"]
       readonly_root_filesystem = false
@@ -119,12 +128,48 @@ resource "aws_ecs_task_definition" "unreal_horde_task_definition" {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.unreal_horde_log_group.name
-          awslogs-region        = data.aws_region.current.name
+          awslogs-region        = data.aws_region.current.id
           awslogs-stream-prefix = "[DOCDB CERT]"
         }
       },
-    }
-  ])
+    }],
+    local.need_p4_trust ? [{
+      name      = "unreal-horde-p4-trust",
+      image     = "ubuntu:noble"
+      essential = false
+      command = ["bash", "-exc", <<-EOF
+        apt-get update
+        apt-get install -y curl gnupg
+        curl -fs https://package.perforce.com/perforce.pubkey | gpg --dearmor -o /usr/share/keyrings/perforce.gpg
+        echo "deb [signed-by=/usr/share/keyrings/perforce.gpg] https://package.perforce.com/apt/ubuntu noble release" > /etc/apt/sources.list.d/perforce.list
+        apt-get update
+        apt-get install -y p4-cli
+        p4 -p ${var.p4_port} trust -y
+      EOF
+      ]
+      readonly_root_filesystem = false
+      mountPoints = [
+        {
+          sourceVolume  = "unreal-horde-config",
+          containerPath = "/app/config"
+        }
+      ]
+      environment = [
+        {
+          name  = "P4TRUST"
+          value = "/app/config/.p4trust"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.unreal_horde_log_group.name
+          awslogs-region        = data.aws_region.current.id
+          awslogs-stream-prefix = "[P4TRUST]"
+        }
+      },
+    }] : []
+  ))
   tags = {
     Name = var.name
   }
