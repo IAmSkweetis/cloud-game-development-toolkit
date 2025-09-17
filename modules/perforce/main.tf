@@ -106,6 +106,11 @@ module "p4_auth" {
   admin_username_secret_arn = var.p4_auth_config.admin_username_secret_arn
   admin_password_secret_arn = var.p4_auth_config.admin_password_secret_arn
 
+  # SCIM
+  p4d_super_user_arn          = var.p4_auth_config.p4d_super_user_arn
+  p4d_super_user_password_arn = var.p4_auth_config.p4d_super_user_password_arn
+  scim_bearer_token_arn       = var.p4_auth_config.scim_bearer_token_arn
+
   depends_on = [aws_ecs_cluster.perforce_web_services_cluster[0]]
 }
 
@@ -128,11 +133,16 @@ module "p4_code_review" {
     var.existing_ecs_cluster_name :
     aws_ecs_cluster.perforce_web_services_cluster[0].name
   )
-  container_name            = var.p4_code_review_config.container_name
-  container_port            = var.p4_code_review_config.container_port
-  container_cpu             = var.p4_code_review_config.container_cpu
-  container_memory          = var.p4_code_review_config.container_memory
-  p4d_port                  = var.p4_code_review_config.p4d_port != null ? var.p4_code_review_config.p4d_port : local.p4_port
+  container_name   = var.p4_code_review_config.container_name
+  container_port   = var.p4_code_review_config.container_port
+  container_cpu    = var.p4_code_review_config.container_cpu
+  container_memory = var.p4_code_review_config.container_memory
+  p4d_port         = var.p4_code_review_config.p4d_port != null ? var.p4_code_review_config.p4d_port : local.p4_port
+  p4charset = var.p4_code_review_config.p4charset != null ? var.p4_code_review_config.p4charset : (
+    var.p4_server_config != null ? (
+      var.p4_server_config.unicode ? "auto" : "none"
+    ) : "none"
+  )
   existing_redis_connection = var.p4_code_review_config.existing_redis_connection
 
   # Storage & Logging
