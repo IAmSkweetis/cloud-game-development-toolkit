@@ -1,0 +1,30 @@
+from typing import Dict
+
+from cgdtkcli.tools.awscli import ToolAwsCli
+from cgdtkcli.tools.tool import ToolABC, ToolBasic
+
+INFRA_TOOLS: Dict[str, ToolABC] = {
+    "tfenv": ToolBasic(
+        name="tfenv",
+        executable_name="tfenv",
+        install_url="https://github.com/tfutils/tfenv",
+    ),
+    "packer": ToolBasic(
+        name="packer",
+        executable_name="packer",
+        install_url="https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli",
+    ),
+    "aws-cli": ToolAwsCli(),
+    "ansible": ToolBasic(
+        name="ansible",
+        executable_name="ansible",
+        install_url="https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html",
+    ),
+    "terraform": ToolBasic(
+        name="terraform",
+        executable_name="terraform",
+        install_url="https://developer.hashicorp.com/terraform/install",
+    ),
+}
+
+

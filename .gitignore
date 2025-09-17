@@ -85,3 +85,6 @@ id_ed25519.pub
 
 # Kiro context files
 .kiro
+
+#dotenv files
+.env

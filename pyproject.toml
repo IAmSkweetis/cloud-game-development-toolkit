@@ -9,10 +9,16 @@ description = "CLI for working with the AWS for Games Cloud Game Development Too
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "blessed>=1.21.0",
     "boto3>=1.40.5",
+    "certifi>=2025.8.3",
     "click<8.2.0",
     "gitpython>=3.1.45",
     "pydantic>=2.11.7",
+    "pydantic-settings>=2.10.1",
+    "python-json-logger>=3.3.0",
+    "requests>=2.32.5",
+    "textual>=6.1.0",
     "typer>=0.16.0",
 ]
 
@@ -21,7 +27,7 @@ name = "Scott Wolfe"
 email = "scottaw@amazon.com"
 
 [project.scripts]
-cgdtk = "cgdtkcli.cli:cgdtkcli_entry"
+cgdtk = "cgdtkcli.cli.entry:cgdtkcli_entry"
 
 [tool.black]
 line-length = 100
@@ -57,7 +63,7 @@ module-root = ""
 [dependency-groups]
 dev = [
     "black>=25.1.0",
-    "boto3-stubs>=1.40.5",
+    "boto3-stubs[sts]>=1.40.5",
     "deptry>=0.23.1",
     "flake8>=7.3.0",
     "isort>=6.0.1",
@@ -67,5 +73,6 @@ dev = [
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "pytest-mock>=3.14.1",
+    "textual-dev>=1.7.0",
     "tox>=4.28.4",
 ]
