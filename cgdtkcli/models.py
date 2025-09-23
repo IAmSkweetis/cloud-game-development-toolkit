@@ -34,3 +34,13 @@ class LogHandlerConfig(BaseModel):
 class ToolButtonType(str, Enum):
     VERIFY = "verify"
     INSTALL = "install"
+
+
+class StateDriver(str, Enum):
+    TF_WORKSPACE = "tf_workspace"
+    TERRAGRUNT = "terragrunt"
+
+
+class StateProvider(str, Enum):
+    LOCAL = "local"
+    S3 = "s3"

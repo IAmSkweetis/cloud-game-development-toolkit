@@ -19,6 +19,7 @@ dependencies = [
     "python-json-logger>=3.3.0",
     "requests>=2.32.5",
     "textual>=6.1.0",
+    "tomli-w>=1.2.0",
     "typer>=0.16.0",
 ]
 

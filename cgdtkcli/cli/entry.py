@@ -10,7 +10,9 @@ def main_callback(ctx: typer.Context):
 
 cgdtkcli_entry = typer.Typer(
     help="AWS Cloud Game Development Toolkit CLI",
-    callback=main_callback,
+    # NOTE: This is disabled until the commands are worked out.
+    # callback=main_callback,
+    no_args_is_help=True,
     invoke_without_command=True,
 )
 
