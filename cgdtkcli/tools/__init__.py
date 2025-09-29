@@ -25,6 +25,16 @@ INFRA_TOOLS: Dict[str, ToolABC] = {
         executable_name="terraform",
         install_url="https://developer.hashicorp.com/terraform/install",
     ),
+    "tgenv": ToolBasic(
+        name="tgenv",
+        executable_name="tgenv",
+        install_url="https://github.com/tgenv/tgenv"
+    ),
+    "terragrunt": ToolBasic(
+        name="terragrunt",
+        executable_name="terragrunt",
+        install_url="https://terragrunt.gruntwork.io/docs/getting-started/install/"
+    )
 }
 
 

@@ -1,27 +1,31 @@
 from __future__ import annotations
 
-import uuid
 from pathlib import Path
-from typing import Any, List
+from typing import List
 
 import tomli_w
-from pydantic import (UUID4, BaseModel, DirectoryPath, Field, computed_field,
-                      model_validator)
-from pydantic_settings import (BaseSettings, PydanticBaseSettingsSource,
-                               SettingsConfigDict, TomlConfigSettingsSource)
+from pydantic import BaseModel, Field, model_validator
+from pydantic_settings import (
+    BaseSettings,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+    TomlConfigSettingsSource,
+)
 
+from cgdtkcli.config.project import ProjectConfig
 from cgdtkcli.constants import DEFAULT_CGDTK_PATH
 from cgdtkcli.exceptions import CgdtkConfigFileExistsError
 from cgdtkcli.models import LogFormat, LogLevel
+from cgdtkcli.utils import get_repo_root
 
 
 class LoggingConfig(BaseModel):
     enabled: bool = True
     default_level: LogLevel = LogLevel.DEBUG
-    root_path: Path = DEFAULT_CGDTK_PATH
+    root_path: Path = Field(default_factory=get_repo_root)
 
     file_enable: bool = False
-    file_path: Path = root_path / "logs" / "cgdtkcli.log"
+    file_path: Path = Field(default_factory=lambda: get_repo_root() / "logs" / "cgdtkcli.lo")
     file_level: LogLevel = LogLevel.DEBUG
     file_format: LogFormat = LogFormat.STD
 
@@ -32,42 +36,6 @@ class LoggingConfig(BaseModel):
     tui_enable: bool = False
     tui_level: LogLevel = LogLevel.DEBUG
     tui_format: LogFormat = LogFormat.TUI
-
-
-class EnvironmentConfig(BaseModel):
-    id: UUID4 = Field(default_factory=uuid.uuid4)
-    name: str = "dev"
-    project_name: str = "my-game-infra"
-    project_path: Path = DEFAULT_CGDTK_PATH / "projects" / project_name
-
-    @computed_field
-    @property
-    def path(self) -> DirectoryPath:
-        return self.project_path / self.name
-
-
-class ProjectConfig(BaseModel):
-    id: UUID4 = Field(default_factory=uuid.uuid4)
-    name: str = "my-game-infra"
-    environments: List[EnvironmentConfig] = [EnvironmentConfig()]
-    root_path: Path = DEFAULT_CGDTK_PATH
-
-    def __init__(self, **data: Any) -> None:
-        super().__init__(**data)
-        for env in self.environments:
-            env.project_name = self.name
-
-    @computed_field
-    @property
-    def path(self) -> DirectoryPath:
-        return self.root_path / "projects" / self.name
-
-    @model_validator(mode="after")
-    def propegate_project_path(self) -> ProjectConfig:
-        for env in self.environments:
-            env.project_path = self.path
-
-        return self
 
 
 class CgdtkConfig(BaseSettings):
@@ -82,7 +50,7 @@ class CgdtkConfig(BaseSettings):
     aws_region: str = "us-west-2"
     aws_profile: str = "default"
 
-    path: Path = DEFAULT_CGDTK_PATH
+    path: Path = Field(default_factory=get_repo_root)
 
     logging: LoggingConfig = LoggingConfig()
     projects: List[ProjectConfig] = []
