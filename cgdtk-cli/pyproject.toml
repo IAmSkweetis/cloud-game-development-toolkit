@@ -1,0 +1,149 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aws-cloud-game-development-toolkit-cli"
+version = "0.1.0"
+description = "CLI for working with the AWS for Games Cloud Game Development Toolkit (cgdtk)."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.40.41",
+    "pydantic>=2.11.9",
+    "typer>=0.19.2",
+]
+
+[[project.authors]]
+name = "Scott Wolfe"
+email = "scottaw@amazon.com"
+
+[project.scripts]
+cgdtk = "cgdtk_cli.cli:cli_entry"
+
+[tool.hatch.build]
+directory = "./build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cgdtk_cli"]
+
+[tool.hatch.env]
+requires = ["hatch-pip-compile"]
+
+[tool.hatch.envs.default]
+python = "3.13"
+path = ".venv"
+dependencies = ["mypy", "pytest >= 6"]
+
+[tool.hatch.envs.default.scripts]
+#generate-stubs = ["pyright --createstub discord"]
+typing = ["mypy --install-types --non-interactive src/cgdtk_cli tests"]
+
+# This command is for updating all your lock files across all environments
+update = ["hatch-pip-compile --upgrade --all"]
+
+# This is the release target run on build farm by default
+release = ["typing", "hatch test --all --cover"]
+
+# hatch clean only works for the build target.
+# Run `bb run clean` to clean up everything.
+clean = ["rm -rf build/* build .hatch .venv .delegate-venv"]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = ["pytest-env"]
+# `hatch test` currently ignores the pytest options. Specify default-args is a
+# workaround.
+default-args = []
+
+[[tool.hatch.envs.hatch-test.matrix]]
+# This defines multiple variables you can generate combinations
+# to test underneath different environments.  A separate environment and
+# lock file will be created for every combination located in `./requirements/`
+python = ["3.13"]
+
+[tool.hatch.envs.hatch-test.scripts]
+run = "pytest{env:HATCH_TEST_ARGS:} {args}"
+run-cov = "coverage run -m pytest{env:HATCH_TEST_ARGS:} {args}"
+cov-combine = "coverage combine"
+cov-report = ["coverage report", "coverage html", "coverage xml"]
+
+
+[tool.mypy]
+check_untyped_defs = true
+show_error_codes = true
+pretty = true
+ignore_missing_imports = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+warn_unused_configs = true
+files = ["src/**/*.py"]
+mypy_path = "stubs"
+python_version = "3.13"
+exclude = "tests/.*"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pylint.format]
+expected-line-ending-format = "LF"
+max-line-length = 100
+
+[tool.pylint."messages control"]
+disable = ["all"]
+enable = ["mixed-line-endings", "unexpected-line-ending-format"]
+
+[tool.pytest.ini_options]
+addopts = ["--durations=5", "--color=yes"]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source_pkgs = ["cgdtk_cli"]
+
+[tool.coverage.paths]
+source = ["src/", "**/site-packages/cgdtk_cli"]
+
+[tool.coverage.report]
+show_missing = true
+# fail_under = 99
+
+[tool.pyright]
+stubPath = "stubs"
+
+## This environment is used solely to generate a lock file on hatch,
+# and hatch-pip-compile that can be automatically updated
+[tool.hatch.envs.build-tools]
+# This version states what version your build tools build with.  To change it,
+# you will need to:
+# * Remove the `requirements/requirements-build-tools.txt` file
+python = "3.13"
+detached = true
+skip-install = true
+dependencies = ["hatch", "hatch-pip-compile"]
+
+# PeruHatch repository and package locking plugin
+[tool.hatch.env.collectors.custom]
+path = ".hatch/hatch_plugin.py"
+
+# This is necessary to use 'uv' as the resolver if this is the top-level package
+# in a monorepo (which is usually the case).  Remove this if copying the
+# package into a monorepo
+[tool.uv.workspace]
+
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "boto3-stubs[sts]>=1.40.41",
+    "deptry>=0.23.1",
+    "flake8>=7.3.0",
+    "isort>=6.0.1",
+    "mock>=5.2.0",
+    "mypy[reports]>=1.17.1",
+    "pylint>=3.3.7",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "pytest-mock>=3.14.1",
+]
