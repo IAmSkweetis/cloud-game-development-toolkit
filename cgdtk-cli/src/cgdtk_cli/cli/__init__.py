@@ -1,6 +1,6 @@
-import semver
 import typer
 
+from cgdtk_cli.cli.cmd_modules import modules_cli_group
 from cgdtk_cli.cli.cmd_tools import tools_cli_group
 
 cli_entry = typer.Typer(
@@ -19,11 +19,5 @@ def version() -> None:
     typer.echo(f"AWS Cloud Game Development Toolkit CLI (cgdtk) v{__version__}")
 
 
-@cli_entry.command(name="semver")
-def sem_ver() -> None:
-    ver = semver.Version.parse("tfenv 3.0.0")
-
-    print(ver)
-
-
+cli_entry.add_typer(modules_cli_group, name="module")
 cli_entry.add_typer(tools_cli_group, name="tools")

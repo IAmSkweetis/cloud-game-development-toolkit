@@ -5,7 +5,6 @@ from rich import print as rprint
 from rich.table import Table
 from typing_extensions import Annotated
 
-from cgdtk_cli.exceptions import CgdtkException
 from cgdtk_cli.tools import INFRA_TOOLS
 from cgdtk_cli.tools.base import ToolABC
 
