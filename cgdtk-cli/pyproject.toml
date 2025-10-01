@@ -10,7 +10,11 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "boto3>=1.40.41",
+    "gitpython>=3.1.45",
     "pydantic>=2.11.9",
+    "pydantic-settings[yaml]>=2.11.0",
+    "python-hcl2>=7.3.1",
+    "rich>=14.1.0",
     "typer>=0.19.2",
 ]
 
@@ -139,6 +143,7 @@ dev = [
     "boto3-stubs[sts]>=1.40.41",
     "deptry>=0.23.1",
     "flake8>=7.3.0",
+    "hatch>=1.14.2",
     "isort>=6.0.1",
     "mock>=5.2.0",
     "mypy[reports]>=1.17.1",

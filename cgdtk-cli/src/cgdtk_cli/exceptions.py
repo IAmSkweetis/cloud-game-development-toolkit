@@ -3,3 +3,6 @@ class CgdtkException(Exception):
 
 class CgdtkConfigError(CgdtkException):
     pass
+
+class CgdtkRepoError(CgdtkException):
+    pass

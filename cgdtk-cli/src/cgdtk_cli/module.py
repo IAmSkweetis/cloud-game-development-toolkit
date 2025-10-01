@@ -5,8 +5,11 @@ from typing import List
 from git import Repo
 from hcl2.api import load as hcl2_load
 from pydantic import BaseModel, computed_field
+from rich.console import Console, ConsoleOptions, RenderResult
+from rich.panel import Panel
 
 from cgdtk_cli.exceptions import CgdtkConfigError
+from cgdtk_cli.utils import CGDTK_REPO_ROOT
 
 
 class TerraformVariableType(str, Enum):
@@ -26,6 +29,16 @@ class TerraformVariable(BaseModel):
     type: TerraformVariableType = TerraformVariableType.STRING
     default: str = ""
     description: str = ""
+
+    def __rich_console__(self, console: Console, options: ConsoleOptions) -> RenderResult:
+        yield Panel(
+            f"[bold]Name:[/] {self.name}\n"
+            f"[bold]Type:[/] {self.type.value}\n",
+            # f"[bold]Default:[/] {self.default}\n"
+            # f"[bold]Description:[/] {self.description}",
+            title=f"Variable: {self.name}",
+            border_style="blue",
+        )
 
 
 class TerraformModule(BaseModel):
@@ -80,17 +93,15 @@ class TerraformModule(BaseModel):
         return variables_list
 
 
+
+
 def get_tf_modules() -> List[TerraformModule]:
     """Find all modules in the current repo.
 
     Returns:
         List[CgdtkModule]: A list of CgdtkModule objects.
     """
-    repo = Repo(Path.cwd(), search_parent_directories=True)
-    if repo.working_tree_dir is None:
-        raise CgdtkConfigError(f"Unable to find root of repo from {Path.cwd()}")
-
-    tf_module_path = Path(repo.working_tree_dir) / "modules"
+    tf_module_path = CGDTK_REPO_ROOT / "modules"
     tf_modules = []
     skip_dirs = {"assets", "examples", "tests"}
 
