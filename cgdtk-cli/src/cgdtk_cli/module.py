@@ -129,3 +129,4 @@ def get_tf_modules() -> List[TerraformModule]:
 
 
 TERRAFORM_MODULES = get_tf_modules()
+VALID_MODULE_NAMES = [m.name for m in TERRAFORM_MODULES]

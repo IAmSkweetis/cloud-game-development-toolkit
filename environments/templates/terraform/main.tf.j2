@@ -1,0 +1,8 @@
+{% for module in terraform_modules %}
+module "{{ module }}" {
+    source = "../../../modules/{{ module }}"
+
+    vpc_id = "{{ vpc_id }}"
+    # Update the variables
+}
+{% endfor -%}
