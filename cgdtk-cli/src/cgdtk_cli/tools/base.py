@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import List
 
 from pydantic import BaseModel, Field, HttpUrl, computed_field, field_validator
+from rich.console import Console
+from rich.text import Text
 
 from cgdtk_cli.exceptions import CgdtkException
 
@@ -87,18 +89,47 @@ class ToolABC(BaseModel, ABC):
 
         return True
 
+    @computed_field()
+    @property
+    def is_ready(self) -> bool:
+        return self.is_installed and self.is_executable and self.is_configured
+
     # TODO: Consider breaking down the exec into common actions of "show", "apply", etc
-    def exec(self, command_args: List[str], cwd: Path = Path.cwd()) -> str:
+    def exec(
+        self, command_args: List[str], cwd: Path = Path.cwd(), console: Console | None = None
+    ) -> str:
         if self.executable_path is None:
             raise CgdtkException(f"Tool {self.name} not found in PATH")
 
         command = [self.executable_path] + command_args
 
-        result = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
+        if console is not None:
+            console.print(
+                f"[purple]Executing [cyan]{self.executable_name} {" ".join(command_args)}[/cyan] in [cyan]{cwd}[/cyan]..."
+            )
+            with subprocess.Popen(
+                command,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            ) as process:
+                output_lines = []
+                if process.stdout is not None:
+                    for line in process.stdout:
+                        console.print(Text.from_ansi(line.rstrip()))
+                        output_lines.append(line)
 
-        if result.returncode != 0:
-            raise CgdtkException(f"Problem running tool {self.name}")
-        return result.stdout.strip()
+                process.wait()
+                if process.returncode != 0:
+                    raise CgdtkException(f"Problem running tool {self.name}")
+                return "".join(output_lines).strip()
+        else:
+            result = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
+            if result.returncode != 0:
+                raise CgdtkException(f"Problem running tool {self.name}")
+            return result.stdout.strip()
 
 
 class ToolBasic(ToolABC):

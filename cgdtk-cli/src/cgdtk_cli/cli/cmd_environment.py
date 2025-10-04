@@ -12,6 +12,7 @@ from cgdtk_cli.environment import (
     render_environment_from_template,
 )
 from cgdtk_cli.module import VALID_MODULE_NAMES
+from cgdtk_cli.tools import INFRA_TOOLS
 
 environment_cli_group = typer.Typer(
     help="Commands to manage a CGD Environments", no_args_is_help=True
@@ -148,10 +149,49 @@ def create_environment(
         environment=environment, console=console, vpc_id=vpc_id, overwrite=overwrite
     )
 
+    # print out the environment to console
     console.print(f"[purple]Environment {environment.name} created successfully...")
-    console.rule()
     console.print(environment)
 
+    # Run a terraform init on the environment.
+    console.rule("Begin [purple i]terraform init")
+    console.print(f"[purple]Initializing environment {environment.name}...")
+
+    # Check if terraform is installed.
+    if not INFRA_TOOLS["terraform"].is_ready:
+        raise typer.BadParameter("Terraform is not installed.")
+
+    # Execute the terraform init command.
+    console.print("[purple]Running terraform init...")
+    INFRA_TOOLS["terraform"].exec(
+        command_args=["init"], cwd=environment.path / "terraform", console=console
+    )
+    console.rule("End [purple i]terraform init")
+
+    # We're done!
     console.print(
         "\n\n[green]Review the generated configuration and the CGD Docs on how to continue."
+    )
+
+
+@environment_cli_group.command(name="init", help="Runs a terraform init on a given environment.")
+def init_environment(
+    environment_name: Annotated[
+        str,
+        typer.Option(help="The environment to init", callback=environment_exists),
+    ],
+) -> None:
+    environment = cast(CgdtkEnvironment, environment_name)
+
+    console = Console()
+    console.print(f"[purple]Initializing environment {environment.name}...")
+
+    # Check if terraform is installed.
+    if not INFRA_TOOLS["terraform"].is_ready:
+        raise typer.BadParameter("Terraform is not installed.")
+
+    # Execute the terraform init command.
+    console.print("[purple]Running terraform init...")
+    INFRA_TOOLS["terraform"].exec(
+        command_args=["init"], cwd=environment.path / "terraform", console=console
     )
